@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Главная</a></li>
+	<li class="breadcrumb-item-active"  aria-current="page">/</li>
+    <li class="breadcrumb-item-active" aria-current="page"> Расписание</li>
+  </ol>
+</nav>
+<h3>Расписание</h3>
+<ul class="list-group list-group-horizontal">
+	  <li class="list-group-item"><a href="/schedule">Сегодня, {{ today }}</a></li>
+	  <li class="list-group-item"><a href="/schedule/{{ _tomorrow }}">Завтра, {{ tomorrow }}</a></li>
+	  <li class="list-group-item"><a href="/schedule/{{ _after_tomorrow }}">Послезавтра, {{ after_tomorrow }}</a></li>
+</ul>
+<br>
+{% for values in films.values() %}
+<table class="table">
+  <thead>
+	<tr>
+      <th scope="col"><div class="mini_img"><img src={{ values[0] }} alt="..."></th></div>
+      <th scope="col"><table class="table table-borderless">
+		  <thead>
+		    <tr scope="col">{{ values[1] }}     </tr>
+			<tr scope="col"><div class="btn-group" role="group" aria-label="Basic example">
+			{% for id, time in values[-1].items() %}
+				 <button type="button" class="btn btn-outline-light" ><a href="/buy_ticket/{{ id }}">{{ time }}</a></button>
+			{% endfor %}
+			</tr>
+			<th scope="row"><small class="text-muted">{{ values[2] }}</small></th>
+			</div>
+		  </thead>
+		   <tbody>
+			</tbody>
+			</table>
+			 </tr>
+		</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+{% endfor %}
+
+{% endblock %}

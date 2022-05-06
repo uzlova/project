@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Главная</a></li>
+	<li class="breadcrumb-item-active"  aria-current="page">/</li>
+    <li class="breadcrumb-item"><a href="/movies">Фильмы</a></li>
+	<li class="breadcrumb-item-active"  aria-current="page">/</li>
+    <li class="breadcrumb-item-active" aria-current="page">{{ title }}</li>
+  </ol>
+</nav>
+<h3 align="center">{{ title }}</h3>
+<table class="table table-borderless">
+  <thead>
+  </thead>
+  <tbody>
+   <tr>
+		<td><img src={{ imgs }} class="rounded mx-auto d-block" alt="..."></td>
+		<td><table class="table table-borderless">
+		  <thead>
+		  </thead>
+		  <tbody>
+			 <tr>
+				 <th scope="row">Жанр:</th>
+				 <td>{{ genre }}</td>
+			 </tr>
+			 <tr>
+				 <th scope="row">Режиссер:</th>
+				 <td>{{ director }}</td>
+			 </tr>
+			 <tr>
+				 <th scope="row">Продолжительность:</th>
+				 <td>{{ time }} мин.</td>
+			 </tr>
+			 <tr>
+				 <th scope="row">Оценка:</th>
+				 <td>{{ rating }}/10</td>
+			 </tr>
+		  </tbody>
+		</table></td>
+	 </tr>
+  </tbody>
+</table>
+</br><h3>Расписание</h3>
+<div class="btn-group" role="group" aria-label="Basic example">
+	{% for items in date_list %}
+		 <button type="button" class="btn btn-outline-light" ><a href="/buy_ticket/{{ items[2] }}">{{ items[0] }}, {{ items[1] }}</a></button>
+	{% endfor %}
+</div>
+<br><br><h3>О фильме</h3>
+<p>{{ description }}</p>
+{% endblock %}

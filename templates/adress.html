@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="https://api-maps.yandex.ru/1.1/index.xml" type="text/javascript"></script>
+    <script type="text/javascript">
+        YMaps.jQuery(function () {
+            var map = new YMaps.Map(YMaps.jQuery("#YMapsID")[0]);
+            map.setCenter(new YMaps.GeoPoint(38.323348, 57.528772), 20);
+        })
+		var placemark = new YMaps.Placemark(new YMaps.GeoPoint(38.323348, 57.528772), {hideIcon: false});
+		placemark.name = "Кинотеатр";
+		map.addOverlay(placemark);
+    </script>
+</head>
+
+<body>
+	</br>
+    <div id="YMapsID" style="width:1000px;height:400px"></div>
+	<div>
+		</br>
+		<p><strong>Адрес:</strong> ул. Ольги Берггольц, 9А, Углич, Россия </p>
+		<p><strong>Открыты каждый день с 09.00-23.00</strong></p>
+	</div>
+</body>
+
+{% endblock %}

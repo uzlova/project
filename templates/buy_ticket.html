@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/movie/{{ title }}">{{ title }}</a></li>
+	<li class="breadcrumb-item-active"  aria-current="page">/</li>
+    <li class="breadcrumb-item-active" aria-current="page"> Купить билет</li>
+  </ol>
+</nav>
+<table class="mini_table">
+  <thead>
+	<tr>
+      <th scope="col"><div class="mini_img"><img src={{ _img }} alt="..."></th></div>
+      <th scope="col"><h2>{{ title }} | {{ date }} | {{ time }}</h2></th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+</br><h3>Для выбора места и дальнейшей оплаты, заполните форму ниже. Вам обязательно позвонят....</h3><br>
+<form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.phone.label }}<br>
+            {{ form.phone(class="form-control") }}<br>
+            {% for error in form.phone.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.name.label }}<br>
+            {{ form.name(class="form-control") }}<br>
+            {% for error in form.name.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p><br>
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    </form>
+{% endblock %}

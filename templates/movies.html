@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+</br><h2 class="title1" align="center" color="white">Фильмы</h2></br>
+<div class="row row-cols-1 row-cols-md-4 g-4">
+{% for item in movies %}
+	<div class="col">
+		<div class="card">
+			<div class="one_size_img"><a href="/movie/{{ item.title }}"><img src={{ item.img }} class="card-img-top" alt="..."></a></div>
+			<div class="card-body">
+			  <p align="center" class="card-title">{{ item.title }}<p>
+			</div>
+		 </div>
+	  </div>
+{% endfor %}
+</div>
+{% endblock %}
