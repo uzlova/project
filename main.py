@@ -1,5 +1,8 @@
 import datetime
+import os
 
+import bs4
+import requests
 from flask import Flask, render_template, request
 from werkzeug.utils import redirect
 from data.films import Films
@@ -12,6 +15,85 @@ import locale
 locale.setlocale(locale.LC_ALL, 'ru_RU.utf8')
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+DAYS = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
+
+
+def get_new_tickets():
+    session = db_session.create_session()
+    films_titles = []
+    date = datetime.date.today()
+    films = session.query(Films).all()
+    for i in films:
+        films_titles.append(i.title)
+    s = requests.get(f'https://www.kinopoisk.ru/afisha/city/7117/day_view/{date}/')
+    b = bs4.BeautifulSoup(s.text, "html.parser")
+    a = b.getText()
+    a = a[a.find('список фильмов') + len('список фильмов'):a.find('фильм:')]
+
+    with open('input.txt', 'w') as f:
+        f.write(a)
+    with open('input.txt') as f:
+        lines = [i.strip() for i in f.readlines() if len(i.strip())]
+
+    films = {}
+    name = ''
+    index = 1
+    flag = False
+    flag2 = False
+    while index < len(lines):
+        if flag:
+            if 'мин' in lines[index] and lines[index][:lines[index].find('мин') - 1].isdigit():
+                flag = False
+            index += 1
+            continue
+        else:
+            for i in ['Дом Кино']:
+                if i == lines[index]:
+                    films[name].append([])
+                    index += 1
+                    flag2 = True
+                    break
+            if flag2:
+                flag2 = False
+                continue
+            if '3D' in lines[index]:
+                for i in range(0, len(lines[index]) - 2, 5):
+                    time = lines[index][i:i + 5]
+                    time = time.split(':')
+                    time = datetime.time(hour=int(time[0]), minute=int(time[1]), second=0)
+                    films[name][-1].append(time)
+            else:
+                for day in DAYS:
+                    if lines[index][:len(day)] == day:
+                        flag2 = True
+                        break
+                if flag2:
+                    break
+                for i in range(len(lines[index])):
+                    if lines[index][i].isalpha():
+                        flag2 = True
+                        break
+                if flag2:
+                    films[lines[index]] = []
+                    name = lines[index]
+                    flag = True
+                    index += 1
+                    flag2 = False
+                    continue
+                for i in range(0, len(lines[index]) - 2, 5):
+                    time = lines[index][i:i + 5]
+                    time = time.split(':')
+                    time = datetime.time(hour=int(time[0]), minute=int(time[1]), second=0)
+                    films[name][-1].append(time)
+        index += 1
+    for key, value in films.items():
+        if key in films_titles:
+            film = session.query(Films).filter(Films.title == key).first()
+            for list_time in value:
+                for item in list_time:
+                    ticket = Tickets(title_of_film=film.id, date=date, time=item.replace(microsecond=0))
+                    session.add(ticket)
+                    session.commit()
 
 
 def get_date(date):
@@ -27,17 +109,19 @@ def delete_old_tickets():
     time = datetime.datetime.now().time()
     session = db_session.create_session()
     old_tickets = session.query(Tickets).filter(Tickets.date < date).all()
-    old_times = session.query(Tickets).filter(Tickets.date == date, Tickets.time < time).all()
-    for item in old_tickets:
-        session.delete(item)
-    for item in old_times:
-        session.delete(item)
-    session.commit()
+    if old_tickets:
+        for item in old_tickets:
+            session.delete(item)
+        session.commit()
+        return True
+    else:
+        return False
 
 
 @app.route('/')
 def index():
-    delete_old_tickets()
+    if delete_old_tickets():
+        get_new_tickets()
     movies_today = []
     session = db_session.create_session()
     date = datetime.date.today()
@@ -86,8 +170,6 @@ def movie(name):
     film = session.query(Films).filter(Films.title == name).first()
     tickets = session.query(Tickets).filter(Tickets.title_of_film == int(film.list()[0])).all()
     for i in tickets:
-        print(i.__class__)
-    for i in tickets:
         i_id = i.id
         t = f"{i.time.hour}:{i.time.minute}"
         dt = get_date(i.date)
@@ -130,10 +212,7 @@ def movies():
     return render_template("movies.html", movies=movies)
 
 
-def main():
-    db_session.global_init("db/cinema.db")
-    app.run()
-
-
 if __name__ == '__main__':
-    main()
+    db_session.global_init("db/cinema.db")
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
